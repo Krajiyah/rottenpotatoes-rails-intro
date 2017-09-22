@@ -14,18 +14,18 @@ class MoviesController < ApplicationController
     session["format"] = params["format"] unless params["format"] == nil
     session["ratings"] = params["ratings"] unless params["ratings"] == nil
     if session["ratings"] == nil
-      session['ratings'] = {
-        'G': true,
-        'PG': true,
-        'PG-13': true,
-        'R': true
+      session["ratings"] = {
+        "G": true,
+        "PG": true,
+        "PG-13": true,
+        "R": true
       }
     end
     @all_ratings = {
-      'G': session['ratings']['G'] != nil,
-      'PG': session['ratings']['PG'] != nil,
-      'PG-13': session['ratings']['PG-13'] != nil,
-      'R': session['ratings']['R'] != nil
+      "G": session["ratings"][:G] != nil,
+      "PG": session["ratings"][:PG] != nil,
+      "PG-13": session["ratings"][:"PG-13"] != nil,
+      "R": session["ratings"][:R] != nil
     }
     if session["format"] == "title"
       @movies = Movie.order(:title)
