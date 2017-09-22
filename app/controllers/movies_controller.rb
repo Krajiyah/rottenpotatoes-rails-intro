@@ -11,6 +11,7 @@ class MoviesController < ApplicationController
   end
 
   def index
+    @all_ratings = ['G','PG','PG-13','R']
     if params["format"] == "title"
       @movies = Movie.order(:title)
       @hilight_field = "title"
@@ -19,6 +20,9 @@ class MoviesController < ApplicationController
       @hilight_field = "release_date"
     else
       @movies = Movie.all
+    end
+    if params["ratings"] != nil
+      @movies = @movies.where(:rating => params["ratings"].keys)
     end
   end
 
