@@ -11,7 +11,15 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    if params["format"] == "title"
+      @movies = Movie.order(:title)
+      @hilight_field = "title"
+    elsif params["format"] == "release_date"
+      @movies = Movie.order(:release_date)
+      @hilight_field = "release_date"
+    else
+      @movies = Movie.all
+    end
   end
 
   def new
