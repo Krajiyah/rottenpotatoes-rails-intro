@@ -11,8 +11,6 @@ class MoviesController < ApplicationController
   end
 
   def index
-    session["format"] = params["format"] unless params["format"] == nil
-    session["ratings"] = params["ratings"] unless params["ratings"] == nil
     if session["ratings"] == nil
       session["ratings"] = {
         "G": true,
@@ -20,25 +18,85 @@ class MoviesController < ApplicationController
         "PG-13": true,
         "R": true
       }
-    end
-    @all_ratings = {
-      "G": session["ratings"][:G] != nil,
-      "PG": session["ratings"][:PG] != nil,
-      "PG-13": session["ratings"][:"PG-13"] != nil,
-      "R": session["ratings"][:R] != nil
-    }
-    if session["format"] == "title"
-      @movies = Movie.order(:title)
-      @hilight_field = "title"
-    elsif session["format"] == "release_date"
-      @movies = Movie.order(:release_date)
-      @hilight_field = "release_date"
-    else
+      @all_ratings = session["ratings"]
       @movies = Movie.all
+    else
+      if (params[:sortBy] == nil && session[:sortBy] != nil) || (params["ratings"] == nil && session["ratings"] != nil)
+        session[:sortBy] = params[:sortBy] unless params[:sortBy] == nil
+        session["ratings"] = params["ratings"] unless params["ratings"] == nil
+        redirect_to movies_path(:sortBy => session[:sortBy], "ratings" => session["ratings"])
+      else
+        if params[:sortBy] != nil
+          session[:sortBy] = params[:sortBy]
+          if params[:sortBy] == "title"
+            @movies = Movie.order(:title)
+            @hilight_field = "title"
+          elsif params[:sortBy] == "release_date"
+            @movies = Movie.order(:release_date)
+            @hilight_field = "release_date"
+          end
+        end
+        if params["ratings"] != nil
+          session["ratings"] = params["ratings"]
+          @all_ratings = {
+            "G": params["ratings"][:G] != nil,
+            "PG": params["ratings"][:PG] != nil,
+            "PG-13": params["ratings"][:"PG-13"] != nil,
+            "R": params["ratings"][:R] != nil
+          }
+          @movies = Movie.all if @movies == nil
+          @movies = @movies.where(:rating => params["ratings"].keys)
+        end
+      end
     end
-    if session["ratings"] != nil
-      @movies = @movies.where(:rating => session["ratings"].keys)
-    end
+
+
+
+    # if session.keys.length == 0
+    #   params['ratings'] = {
+    #     "G": true,
+    #     "PG": true,
+    #     "PG-13": true,
+    #     "R": true
+    #   }
+    # end
+    # if params[:sortBy] != session[:sortBy] || params["ratings"] != session["ratings"]
+    #   session[:sortBy] = params[:sortBy]
+    #   session["ratings"] = params["ratings"]
+    #   redirect_to movies_path(session)
+    # else
+    #   puts "-----------"
+    #   puts session[:sortBy]
+    #   puts session["ratings"]
+    #   puts "-----------"
+    #   if session["ratings"] == nil
+    #     @all_ratings = {
+    #       "G": false,
+    #       "PG": false,
+    #       "PG-13": false,
+    #       "R": false
+    #     }
+    #   else
+    #     @all_ratings = {
+    #       "G": session["ratings"][:G] != nil,
+    #       "PG": session["ratings"][:PG] != nil,
+    #       "PG-13": session["ratings"][:"PG-13"] != nil,
+    #       "R": session["ratings"][:R] != nil
+    #     }
+    #   end
+    #   if session["format"] == "title"
+    #     @movies = Movie.order(:title)
+    #     @hilight_field = "title"
+    #   elsif session["format"] == "release_date"
+    #     @movies = Movie.order(:release_date)
+    #     @hilight_field = "release_date"
+    #   else
+    #     @movies = Movie.all
+    #   end
+    #   if session["ratings"] != nil
+    #     @movies = @movies.where(:rating => session["ratings"].keys)
+    #   end
+    # end
   end
 
   def new
