@@ -11,18 +11,20 @@ class MoviesController < ApplicationController
   end
 
   def index
+    session["format"] = params["format"] unless params["format"] == nil
+    session["ratings"] = params["ratings"] unless params["ratings"] == nil
     @all_ratings = ['G','PG','PG-13','R']
-    if params["format"] == "title"
+    if session["format"] == "title"
       @movies = Movie.order(:title)
       @hilight_field = "title"
-    elsif params["format"] == "release_date"
+    elsif session["format"] == "release_date"
       @movies = Movie.order(:release_date)
       @hilight_field = "release_date"
     else
       @movies = Movie.all
     end
-    if params["ratings"] != nil
-      @movies = @movies.where(:rating => params["ratings"].keys)
+    if session["ratings"] != nil
+      @movies = @movies.where(:rating => session["ratings"].keys)
     end
   end
 
